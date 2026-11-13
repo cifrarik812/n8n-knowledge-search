@@ -1,0 +1,102 @@
+{
+  "name": "PEr05 — загрузка ChromaDB",
+  "nodes": [
+    {
+      "id": "78b7375e-6915-49d6-85ad-8c0149b92b3c",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "c4cdd1d6-1b83-461b-a469-03c57262d2e4",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "per05-chroma-upload",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ef25d510-7b98-4a44-9cd0-da486befd660",
+      "name": "ChromaDB · загрузка",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8796/ingest",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "ba36cd58-e420-4b1a-9a94-a9bd291adec7",
+      "name": "Ответ",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        840,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ebacb7d3-bc0f-46ef-a86a-563fd2fad378",
+      "name": "Об адаптации",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        40
+      ],
+      "parameters": {
+        "content": "## PEr05: учебная адаптация\nChromaDB + MiniLM/FastEmbed вместо Pinecone/OpenAI.\nЛокальный Python-сервис на 127.0.0.1:8796; генерация GigaChat-2-Pro.\nКлюч остаётся во внешнем .env и не входит в workflow.",
+        "height": 200,
+        "width": 860
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ChromaDB · загрузка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChromaDB · загрузка": {
+      "main": [
+        [
+          {
+            "node": "Ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}
