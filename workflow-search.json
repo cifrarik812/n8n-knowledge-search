@@ -1,0 +1,102 @@
+{
+  "name": "PEr05 — поиск и ответ GigaChat",
+  "nodes": [
+    {
+      "id": "6424c424-f147-4753-a056-b5495451de58",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "a7c09ead-7e94-4465-ac6b-ea1b45126a3c",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "per05-chroma-search",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "c09d796c-a1b6-4973-974b-0fadb1511b5e",
+      "name": "ChromaDB + GigaChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8796/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "ba4ec50e-7c3a-4265-bad9-3a32e8f54e29",
+      "name": "Ответ",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        840,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "73f753b3-4445-4a56-8875-9849af0645b6",
+      "name": "Об адаптации",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        40
+      ],
+      "parameters": {
+        "content": "## PEr05: учебная адаптация\nChromaDB + MiniLM/FastEmbed вместо Pinecone/OpenAI.\nЛокальный Python-сервис на 127.0.0.1:8796; генерация GigaChat-2-Pro.\nКлюч остаётся во внешнем .env и не входит в workflow.",
+        "height": 200,
+        "width": 860
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ChromaDB + GigaChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChromaDB + GigaChat": {
+      "main": [
+        [
+          {
+            "node": "Ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}
